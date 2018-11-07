@@ -10,7 +10,6 @@ output: github_document
 library(tidyverse)
 library(stringr)
 library(purrr)
-
 ```
 
 # Problem 1 
@@ -41,4 +40,16 @@ study_data =
   mutate(group = recode(group, con = "control", exp = "experiment"),
          subject = str_remove(subject,".csv"),
           week = str_remove(week, "week_"))
+```
+
+## Quesiton 2
+
+Make a spaghetti plot showing observations on each subject over time, and comment on differences between groups.
+
+```{r}
+ggplot(study_data, aes(x = week, y = observation, group = subject, color = subject))+
+  geom_line()+
+  facet_grid(.~group)+
+  labs(title = "Observations over time of two different groups")
+
 ```
