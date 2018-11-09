@@ -25,21 +25,29 @@ Create a tidy dataframe containing data from all participants, including the sub
 * Tidy the result; manipulate file names to include control arm and subject ID, make sure weekly observations are “tidy”, and do any other tidying that’s necessary
 
 ```{r}
+## Create a dataframe containing all file names
+file_name = list.files(path = "./data") %>%
+  as.tibble()
+
 ## Write a function to read all data 
-file_name = list.files("./data")
 read_function = function(file_name){
  study_data = read_csv(file = str_c("./data/",file_name)) %>%
    mutate(file = file_name)
 }
 
-## Use function to read all datasets and tidying the dataframe
-study_data = 
-  map_df(file_name, read_function) %>%
+## Use function to read all datasets
+study_data = mutate(file_name, result = map(.x = file_name[[1,]], ~ read_function(.x))) %>%
+  unnest
+
+## Tidying the dataframe
+study_data = study_data %>%
+  janitor::clean_names()%>%
   gather(key = week, value = observation, week_1:week_8) %>%
   separate(file, into = c("group", "subject"), sep = "_") %>%
   mutate(group = recode(group, con = "control", exp = "experiment"),
          subject = str_remove(subject,".csv"),
-          week = str_remove(week, "week_"))
+          week = str_remove(week, "week_")) %>%
+  select(group,subject,week,observation)
 
 ```
 
