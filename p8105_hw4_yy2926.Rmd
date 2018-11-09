@@ -128,10 +128,8 @@ homicide_prop_result = homicide_summary %>%
   nest(unsolved_homicides,total_homicides) %>%
   mutate(prop_tests = map(.x =.$data , ~homicide_prop(.x))) %>% 
   unnest() %>%
-  select(city_state,estimate,conf.low,conf.high)%>%
-  rename("Estimated Proportion" = estimate,
-         "Lower bound of Confidence Intervals" = conf.low,
-         "Lower bound of Confidence Intervals" = conf.high)
+  select(city_state,estimate,conf.low,conf.high)
+  
 head(homicide_prop_result,5)
 ```
 
@@ -140,5 +138,13 @@ Create a plot that shows the estimates and CIs for each city – check out geom_
 
 ```{r}
 homicide_prop_result %>%
-  mutate(city_state = forcats::fct_reoder(city_state, desc(Estimated Proportion)))
+  mutate(city_state = forcats::fct_reorder(city_state, estimate, desc = FALSE)) %>%
+  ggplot(aes(x = city_state, y = estimate, color = city_state))+
+  geom_point()+
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high, width = 0.2))+
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text (angle = 60, hjust = 1)) +
+  labs(title = "Estimation of Proportion of Unsolved Homicides",
+       x = "City/State",
+         y= "Estimated Proportion")
 ```
