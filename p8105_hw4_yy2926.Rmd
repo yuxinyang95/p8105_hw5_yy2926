@@ -72,6 +72,10 @@ as.tibble()
 ## Quesiton 2.1
 Describe the raw data. Create a city_state variable (e.g. “Baltimore, MD”) and then summarize within cities to obtain the total number of homicides and the number of unsolved homicides (those for which the disposition is “Closed without arrest” or “Open/No arrest”).
 
+### Describe the raw data
+
+This homicide dataset from The Washington Post contains 13 variables 52179 observations. Thirteen variables basically contain all information about a homicide event. For example, the victim first, victim last, victim age, sex contain the identification of the homicide victim. City, state, latitude, and longitude describe where the homicide happened. Uid, reported date and disposition give us more information of homicdie report. For variable "reported data," we observe two values "201511105" and "201511018". These values are abnormal as the date value and may be caused by typo error. Moreover, for the observation uid is "Pit-000050", it seems that someone combine victim_last and race into victim_last. This leads to a completely wrong observation. 
+
 ```{r}
 ## Create city_state variable
 homicide_data = homicide_data %>%
@@ -81,11 +85,28 @@ head(homicide_data,5)
 ## Summarize the number of homicides and number of unsolved homicides
 homicide_summary = homicide_data %>%
   group_by(city_state) %>%
-  mutate(total_homicdies = n()) %>%
+  mutate(total_homicides = n()) %>%
   filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") %>%
   summarise(unsolved_homicides = n(),
-            total_homicdies = max(total_homicdies))
-head(homicide_summary,5)
+            total_homicides = max(total_homicides))
+homicide_summary %>%
+  knitr::kable()
 ```
 
+## Question 2.2
+For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe.
 
+```{r}
+baltimore_data =  homicide_summary %>%
+   filter(city_state == "Baltimore,MD") %>% 
+   select(unsolved_homicides,total_homicides)
+
+prop_test_result = prop.test(baltimore_data[[1]],baltimore_data[[2]]) %>%
+  broom::tidy() %>%
+  select(estimate,conf.low,conf.high) %>%
+  rename("Estimated Proportion" = estimate,
+         "Lower bound of Confidence Intervals" = conf.low,
+         "Lower bound of Confidence Intervals" = conf.high) %>%
+  knitr::kable()
+
+```
