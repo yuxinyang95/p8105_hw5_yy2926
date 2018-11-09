@@ -106,7 +106,28 @@ prop_test_result = prop.test(baltimore_data[[1]],baltimore_data[[2]]) %>%
   select(estimate,conf.low,conf.high) %>%
   rename("Estimated Proportion" = estimate,
          "Lower bound of Confidence Intervals" = conf.low,
-         "Lower bound of Confidence Intervals" = conf.high) %>%
+         "Lower bound of Confidence Intervals" = conf.high) 
+  prop_test_result %>%
   knitr::kable()
+```
+
+## Question 2.3
+Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of purrr::map, purrr::map2, list columns and unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city.
+
+```{r}
+## Write a function to run prop.test
+homicide_prop = function(df){
+  homicide_prop_test = prop.test(df$unsolved_homicides, df$total_homicides) %>%
+  broom:tidy() %>%
+  select(estimate,conf.low,conf.high) %>%
+  rename("Estimated Proportion" = estimate,
+         "Lower bound of Confidence Intervals" = conf.low,
+         "Lower bound of Confidence Intervals" = conf.high)
+}
+
+
+
+
+
 
 ```
